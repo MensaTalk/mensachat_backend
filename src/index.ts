@@ -4,7 +4,7 @@ import http from 'http';
 import cors from 'cors';
 import { InMemoryDB } from './db';
 import { CONNECT, DISCONNECT, JOIN_ROOM, MESSAGE } from './constants';
-import { ActualMessage, JoinMessage } from './types';
+import { ActualMessage, JoinMessage, UserJoinedRoomMessage } from './types';
 
 const app = express();
 app.use(cors());
@@ -28,6 +28,12 @@ io.on(CONNECT, function (socket: Socket) {
       const joinAction = db.joinRoom(socket.id, msg.roomId);
       if (joinAction) {
         socket.join(msg.roomId.toString());
+        const userJoinedRoomMessage: UserJoinedRoomMessage = {
+          userId: socket.id,
+        };
+        io.to(msg.roomId.toString()).emit(
+          JSON.stringify(userJoinedRoomMessage),
+        );
         console.log(`Client ${socket.id} joined ${msg.roomId}.`);
       } else {
         console.log(`Client ${socket.id} failed to join ${msg.roomId}.`);
