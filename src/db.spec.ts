@@ -29,4 +29,12 @@ describe('in memory db', () => {
     expect(db.joinRoom(user.id, room.id)).toBeTruthy();
     expect(db.users.get(user.id).roomId).toBe(room.id);
   });
+  it('user can leave room', () => {
+    const user = db.addUser({ id: NaN, name: 'name', roomId: NaN });
+    const room = db.addRoom({ id: NaN, name: 'name' });
+
+    expect(db.joinRoom(user.id, room.id));
+    expect(db.leaveRoom(user.id)).toBeTruthy();
+    expect(db.users.get(user.id).roomId).toBeNaN();
+  });
 });
