@@ -22,24 +22,26 @@ export class InMemoryDB {
     this.idUserCounter = 0;
   }
 
-  public allRooms(): Map<number, Room> {
+  get rooms(): Map<number, Room> {
     return this.#roomList;
   }
 
-  public allUsers(): Map<number, User> {
+  get users(): Map<number, User> {
     return this.#userList;
   }
 
   public addRoom(room: Room): Room {
     this.idRoomCounter += 1;
-    this.#roomList.set(this.idRoomCounter, { ...room, id: this.idRoomCounter });
-    return room;
+    const newRoom = { ...room, id: this.idRoomCounter };
+    this.#roomList.set(this.idRoomCounter, newRoom);
+    return newRoom;
   }
 
-  public addUser(user: User): Room {
+  public addUser(user: User): User {
     this.idUserCounter += 1;
-    this.#userList.set(this.idUserCounter, { ...user, id: this.idUserCounter });
-    return user;
+    const newUser = { ...user, id: this.idUserCounter };
+    this.#userList.set(this.idUserCounter, newUser);
+    return newUser;
   }
 
   public joinRoom(userId: number, roomId: number): boolean {

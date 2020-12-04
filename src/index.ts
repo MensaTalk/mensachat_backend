@@ -15,7 +15,8 @@ const io = new ioServer(server);
 
 const db = new InMemoryDB();
 
-console.log(db.allRooms());
+console.log(db.rooms);
+console.log(db.users);
 
 io.on('connection', function (socket: Socket) {
   console.log('Client connected!' + socket.id);
