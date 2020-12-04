@@ -4,14 +4,14 @@ export interface Room {
 }
 
 export interface User {
-  id: number;
+  id: string;
   name: string;
   roomId: number;
 }
 
 export class InMemoryDB {
   #roomList: Map<number, Room>;
-  #userList: Map<number, User>;
+  #userList: Map<string, User>;
   idRoomCounter: number;
   idUserCounter: number;
 
@@ -26,7 +26,7 @@ export class InMemoryDB {
     return this.#roomList;
   }
 
-  get users(): Map<number, User> {
+  get users(): Map<string, User> {
     return this.#userList;
   }
 
@@ -37,14 +37,20 @@ export class InMemoryDB {
     return newRoom;
   }
 
-  public addUser(user: User): User {
+  public addUser(user: User, userId?: string): User {
     this.idUserCounter += 1;
-    const newUser = { ...user, id: this.idUserCounter };
-    this.#userList.set(this.idUserCounter, newUser);
+    let id = '';
+    if (userId && this.#userList.has(userId) === false) {
+      id = userId;
+    } else {
+      id = this.idUserCounter.toString();
+    }
+    const newUser = { ...user, id: id };
+    this.#userList.set(id, newUser);
     return newUser;
   }
 
-  public joinRoom(userId: number, roomId: number): boolean {
+  public joinRoom(userId: string, roomId: number): boolean {
     const room = this.#roomList.get(roomId);
     const user = this.#userList.get(userId);
     if (room && user) {
@@ -54,7 +60,7 @@ export class InMemoryDB {
     return false;
   }
 
-  public leaveRoom(userId: number): boolean {
+  public leaveRoom(userId: string): boolean {
     const user = this.#userList.get(userId);
     if (user) {
       this.#userList.set(userId, { ...user, roomId: NaN });
