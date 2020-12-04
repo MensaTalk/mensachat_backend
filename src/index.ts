@@ -3,6 +3,7 @@ import { Server as ioServer, Socket } from 'socket.io';
 import http from 'http';
 import cors from 'cors';
 import { InMemoryDB } from './db';
+import { CONNECT, DISCONNECT, JOIN_ROOM, MESSAGE } from './constants';
 
 const app = express();
 app.use(cors());
@@ -18,14 +19,21 @@ const db = new InMemoryDB();
 console.log(db.rooms);
 console.log(db.users);
 
-io.on('connection', function (socket: Socket) {
-  console.log('Client connected!' + socket.id);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  socket.on('message', function (msg: any) {
-    console.log('Client ' + socket.id + ' send: ' + msg);
+io.on(CONNECT, function (socket: Socket) {
+  console.log(`Client ${socket.id} connected.`);
+  const user = db.addUser({ id: '', name: '' }, socket.id);
+  if (user === undefined) {
+    socket.disconnect();
+  }
+  socket.on(JOIN_ROOM, function (msg: unknown) {
+    console.log(`Client ${socket.id} try to join with ${msg}.`);
   });
-  socket.on('disconnect', function (socket: Socket) {
-    console.log('Client disconnected!' + socket.id);
+
+  socket.on(MESSAGE, function (msg: unknown) {
+    console.log(`Client ${socket.id} send ${msg}.`);
+  });
+  socket.on(DISCONNECT, function (socket: Socket) {
+    console.log(`Client ${socket.id} disconnected.`);
   });
 });
 
