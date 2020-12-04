@@ -13,3 +13,7 @@
 - `test` - run jest test runner
 - `test:watch` - run jest tests in watch mode
 - `test:cov` - run jest tests and show coverage
+
+## Music for development
+
+[Coccolino Deep - Leon](https://www.youtube.com/watch?v=KWUVTxkl5rI)
