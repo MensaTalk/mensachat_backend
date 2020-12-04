@@ -10,3 +10,6 @@
 - `start:debug` - run in debug mode
 - `lint` - lint ts files
 - `lint:fix` - lint and format files
+- `test` - run jest test runner
+- `test:watch` - run jest tests in watch mode
+- `test:cov` - run jest tests and show coverage
