@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "NodeJS Stack",
   "scripts": {
-    "build": "tsc --build tsconfig.json",
+    "build": "rimraf dist && tsc --build tsconfig.json",
     "start": "ts-node --project tsconfig.json src/index.ts",
     "start:dev": "tsc-watch -p tsconfig.json --onSuccess \"node ./dist/index.js\"",
     "start:debug": "tsc-watch -p tsconfig.json --onSuccess \"node --inspect-brk ./dist/index.js\"",
