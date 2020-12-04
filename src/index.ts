@@ -1,5 +1,5 @@
 import express from 'express';
-import { Server as ioServer } from 'socket.io';
+import { Server as ioServer, Socket } from 'socket.io';
 import http from 'http';
 import cors from 'cors';
 
@@ -12,10 +12,14 @@ const server = http.createServer(app);
 
 const io = new ioServer(server);
 
-io.on('connection', function (socket: any) {
-  console.log('Client connected!');
-  socket.on('msg', function (msg: any) {
+io.on('connection', function (socket: Socket) {
+  console.log('Client connected!' + socket.id);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  socket.on('message', function (msg: any) {
     console.log(msg);
+  });
+  socket.on('disconnect', function (socket: Socket) {
+    console.log('Client disconnected!' + socket.id);
   });
 });
 
