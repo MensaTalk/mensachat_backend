@@ -37,7 +37,7 @@ export class InMemoryDB {
     return newRoom;
   }
 
-  public addUser(user: User, userId?: string): User {
+  public addUser(user: Omit<User, 'roomId'>, userId?: string): User {
     this.idUserCounter += 1;
     let id = '';
     if (userId && this.#userList.has(userId) === false) {
@@ -45,7 +45,8 @@ export class InMemoryDB {
     } else {
       id = this.idUserCounter.toString();
     }
-    const newUser = { ...user, id: id };
+    const common: Pick<User, 'id' | 'roomId'> = { id: id, roomId: NaN };
+    const newUser = { ...user, ...common };
     this.#userList.set(id, newUser);
     return newUser;
   }
