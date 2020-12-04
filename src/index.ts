@@ -2,7 +2,7 @@ import express from 'express';
 import { Server as ioServer, Socket } from 'socket.io';
 import http from 'http';
 import cors from 'cors';
-import { Rooms } from './models/rooms';
+import { InMemoryDB } from './db';
 
 const app = express();
 app.use(cors());
@@ -13,9 +13,9 @@ const server = http.createServer(app);
 
 const io = new ioServer(server);
 
-const rooms = new Rooms();
+const db = new InMemoryDB();
 
-console.log(rooms.allRooms());
+console.log(db.allRooms());
 
 io.on('connection', function (socket: Socket) {
   console.log('Client connected!' + socket.id);
