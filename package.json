@@ -4,6 +4,7 @@
   "description": "NodeJS Stack",
   "scripts": {
     "start": "ts-node --project tsconfig.json src/index.ts",
+    "start:dev": "tsc-watch -p tsconfig.json --onSuccess \"node ./dist/index.js\"",
     "build": "tsc --build tsconfig.json",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
