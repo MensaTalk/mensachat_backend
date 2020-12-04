@@ -1,8 +1,11 @@
 import express from 'express';
 import { Server as ioServer } from 'socket.io';
 import http from 'http';
+import cors from 'cors';
 
 const app = express();
+app.use(cors());
+app.options('*', cors());
 app.set('port', process.env.PORT || 9001);
 
 const server = http.createServer(app);
