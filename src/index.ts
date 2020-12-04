@@ -3,8 +3,20 @@ import { Server as ioServer, Socket } from 'socket.io';
 import http from 'http';
 import cors from 'cors';
 import { InMemoryDB } from './db';
-import { CONNECT, DISCONNECT, JOIN_ROOM, MESSAGE } from './constants';
-import { ActualMessage, JoinMessage, UserJoinedRoomMessage } from './types';
+import {
+  CONNECT,
+  DISCONNECT,
+  JOIN_ROOM,
+  LEAVE_ROOM,
+  MESSAGE,
+} from './constants';
+import {
+  ActualMessage,
+  JoinRoomMessage,
+  LeaveRoomMessage,
+  UserJoinedRoomMessage,
+  UserLeftRoomMessage,
+} from './types';
 
 const app = express();
 app.use(cors());
@@ -22,7 +34,7 @@ io.on(CONNECT, function (socket: Socket) {
     console.log(`Client ${socket.id} not able to connect.`);
     socket.disconnect();
   }
-  socket.on(JOIN_ROOM, function (msg: JoinMessage) {
+  socket.on(JOIN_ROOM, function (msg: JoinRoomMessage) {
     console.log(`Client ${socket.id} try to join with ${msg}.`);
     if (msg.roomId) {
       const joinAction = db.joinRoom(socket.id, msg.roomId);
@@ -37,6 +49,22 @@ io.on(CONNECT, function (socket: Socket) {
         console.log(`Client ${socket.id} joined ${msg.roomId}.`);
       } else {
         console.log(`Client ${socket.id} failed to join ${msg.roomId}.`);
+      }
+    }
+  });
+  socket.on(LEAVE_ROOM, function (msg: LeaveRoomMessage) {
+    console.log(`Client ${socket.id} try to leave with ${msg}.`);
+    if (msg.roomId) {
+      const leaveAction = db.leaveRoom(socket.id);
+      if (leaveAction) {
+        // TODO: remove socket from room
+        const userLeftRoomMessage: UserLeftRoomMessage = {
+          userId: socket.id,
+        };
+        io.to(msg.roomId.toString()).emit(JSON.stringify(userLeftRoomMessage));
+        console.log(`Client ${socket.id} left ${msg.roomId}.`);
+      } else {
+        console.log(`Client ${socket.id} failed to leave ${msg.roomId}.`);
       }
     }
   });
