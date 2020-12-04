@@ -12,22 +12,34 @@ export interface User {
 export class InMemoryDB {
   #roomList: Map<number, Room>;
   #userList: Map<number, User>;
-  idCounter: number;
+  idRoomCounter: number;
+  idUserCounter: number;
 
   constructor() {
     this.#roomList = new Map();
     this.#userList = new Map();
-    this.idCounter = 0;
+    this.idRoomCounter = 0;
+    this.idUserCounter = 0;
   }
 
   public allRooms(): Map<number, Room> {
     return this.#roomList;
   }
 
+  public allUsers(): Map<number, User> {
+    return this.#userList;
+  }
+
   public addRoom(room: Room): Room {
-    this.idCounter += 1;
-    this.#roomList.set(this.idCounter, { ...room, id: this.idCounter });
+    this.idRoomCounter += 1;
+    this.#roomList.set(this.idRoomCounter, { ...room, id: this.idRoomCounter });
     return room;
+  }
+
+  public addUser(user: User): Room {
+    this.idUserCounter += 1;
+    this.#userList.set(this.idUserCounter, { ...user, id: this.idUserCounter });
+    return user;
   }
 
   public joinRoom(userId: number, roomId: number): boolean {
@@ -35,6 +47,15 @@ export class InMemoryDB {
     const user = this.#userList.get(userId);
     if (room && user) {
       this.#userList.set(userId, { ...user, roomId: roomId });
+      return true;
+    }
+    return false;
+  }
+
+  public leaveRoom(userId: number): boolean {
+    const user = this.#userList.get(userId);
+    if (user) {
+      this.#userList.set(userId, { ...user, roomId: NaN });
       return true;
     }
     return false;
