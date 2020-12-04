@@ -4,7 +4,9 @@
   "description": "NodeJS Stack",
   "scripts": {
     "build": "tsc --build tsconfig.json",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix"
   },
   "repository": {
     "type": "git",
