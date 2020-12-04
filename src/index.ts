@@ -2,6 +2,7 @@ import express from 'express';
 import { Server as ioServer, Socket } from 'socket.io';
 import http from 'http';
 import cors from 'cors';
+import { Rooms } from './models/rooms';
 
 const app = express();
 app.use(cors());
@@ -11,6 +12,10 @@ app.set('port', process.env.PORT || 9001);
 const server = http.createServer(app);
 
 const io = new ioServer(server);
+
+const rooms = new Rooms();
+
+console.log(rooms.allRooms());
 
 io.on('connection', function (socket: Socket) {
   console.log('Client connected!' + socket.id);
