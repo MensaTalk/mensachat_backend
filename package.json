@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "NodeJS Stack",
   "scripts": {
+    "start": "ts-node --project tsconfig.json src/index.ts",
     "build": "tsc --build tsconfig.json",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
