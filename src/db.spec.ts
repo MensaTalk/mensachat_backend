@@ -27,6 +27,13 @@ describe('in memory db', () => {
     expect(db.users.size).toBe(1);
     expect(user.id).toBe('myId');
   });
+  it('add user with own id but duplicated', () => {
+    const user = db.addUser({ id: '', name: 'name' }, 'myId');
+    expect(user).toBeDefined();
+    expect(db.users.size).toBe(1);
+    const anotherUser = db.addUser({ id: '', name: 'name' }, 'myId');
+    expect(anotherUser).toBeUndefined();
+  });
   it('user can join room', () => {
     const user = db.addUser({ id: '', name: 'name' });
     const room = db.addRoom({ id: NaN, name: 'name' });

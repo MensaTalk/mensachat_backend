@@ -37,11 +37,17 @@ export class InMemoryDB {
     return newRoom;
   }
 
-  public addUser(user: Omit<User, 'roomId'>, userId?: string): User {
+  public addUser(
+    user: Omit<User, 'roomId'>,
+    userId?: string,
+  ): User | undefined {
     this.idUserCounter += 1;
     let id = '';
-    if (userId && this.#userList.has(userId) === false) {
+    const hasUser = this.#userList.has(userId);
+    if (userId && hasUser === false) {
       id = userId;
+    } else if (hasUser) {
+      return undefined;
     } else {
       id = this.idUserCounter.toString();
     }
