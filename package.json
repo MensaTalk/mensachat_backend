@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/MensaTalk/nodejs_stack/issues"
   },
-  "homepage": "https://github.com/MensaTalk/nodejs_stack#readme"
+  "homepage": "https://github.com/MensaTalk/nodejs_stack#readme",
+  "devDependencies": {
+    "typescript": "^4.0.5"
+  }
 }
