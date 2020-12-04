@@ -16,7 +16,7 @@ io.on('connection', function (socket: Socket) {
   console.log('Client connected!' + socket.id);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   socket.on('message', function (msg: any) {
-    console.log(msg);
+    console.log('Client ' + socket.id + ' send: ' + msg);
   });
   socket.on('disconnect', function (socket: Socket) {
     console.log('Client disconnected!' + socket.id);
