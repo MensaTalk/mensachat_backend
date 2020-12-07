@@ -2,7 +2,7 @@ import express from 'express';
 import { Server as ioServer, Socket } from 'socket.io';
 import http from 'http';
 import cors from 'cors';
-import { InMemoryDB } from './db';
+import { InMemoryDB, Room } from './db';
 import {
   CONNECT,
   DISCONNECT,
@@ -27,6 +27,9 @@ const server = http.createServer(app);
 const io = new ioServer(server);
 const db = new InMemoryDB();
 
+const dummyRoom: Room = { id: 1, name: '1' };
+db.addRoom(dummyRoom);
+
 io.on(CONNECT, function (socket: Socket) {
   console.log(`Client ${socket.id} connected.`);
   const user = db.addUser({ id: '', name: '' }, socket.id);
@@ -35,7 +38,7 @@ io.on(CONNECT, function (socket: Socket) {
     socket.disconnect();
   }
   socket.on(JOIN_ROOM, function (msg: JoinRoomMessage) {
-    console.log(`Client ${socket.id} try to join with ${msg}.`);
+    console.log(`Client ${socket.id} try to join with ${msg.roomId}.`);
     if (msg.roomId) {
       const joinAction = db.joinRoom(socket.id, msg.roomId);
       if (joinAction) {
@@ -70,6 +73,9 @@ io.on(CONNECT, function (socket: Socket) {
   });
   socket.on(MESSAGE, function (msg: ActualMessage) {
     console.log(`Client ${socket.id} send ${msg.payload}.`);
+    const roomId = db.getRoomIdByUserId(socket.id);
+    console.log(`Room addresses ${roomId}.`);
+    io.sockets.in(roomId.toString()).emit('message', msg);
   });
   socket.on(DISCONNECT, function (socket: Socket) {
     // TODO: socket.id defined?

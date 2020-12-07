@@ -75,4 +75,12 @@ export class InMemoryDB {
     }
     return false;
   }
+
+  public getRoomIdByUserId(userId: string): number {
+    const user = this.#userList.get(userId);
+    if (user) {
+      return user.roomId;
+    }
+    return NaN;
+  }
 }
