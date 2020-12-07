@@ -32,6 +32,7 @@ db.addRoom(dummyRoom);
 
 io.on(CONNECT, function (socket: Socket) {
   console.log(`Client ${socket.id} connected.`);
+  console.log(`Client params ${socket.handshake.query['roomId']}.`);
   const user = db.addUser({ id: '', name: '' }, socket.id);
   if (user === undefined) {
     console.log(`Client ${socket.id} not able to connect.`);
