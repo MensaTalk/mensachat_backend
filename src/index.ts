@@ -2,21 +2,9 @@ import express from 'express';
 import { Server as ioServer, Socket } from 'socket.io';
 import http from 'http';
 import cors from 'cors';
-import { InMemoryDB, Room } from './db';
-import {
-  CONNECT,
-  DISCONNECT,
-  JOIN_ROOM,
-  LEAVE_ROOM,
-  MESSAGE,
-} from './constants';
-import {
-  ActualMessage,
-  JoinRoomMessage,
-  LeaveRoomMessage,
-  UserJoinedRoomMessage,
-  UserLeftRoomMessage,
-} from './types';
+import { InMemoryDB, Room, User } from './db';
+import { CONNECT, DISCONNECT, LEAVE_ROOM, MESSAGE } from './constants';
+import { ActualMessage, LeaveRoomMessage, UserLeftRoomMessage } from './types';
 
 const app = express();
 app.use(cors());
@@ -31,31 +19,10 @@ const dummyRoom: Room = { id: 1, name: '1' };
 db.addRoom(dummyRoom);
 
 io.on(CONNECT, function (socket: Socket) {
-  console.log(`Client ${socket.id} connected.`);
-  console.log(`Client params ${socket.handshake.query['roomId']}.`);
-  const user = db.addUser({ id: '', name: '' }, socket.id);
-  if (user === undefined) {
-    console.log(`Client ${socket.id} not able to connect.`);
+  const connectedUser = handleOnConnect(socket);
+  if (connectedUser === undefined) {
     socket.disconnect();
   }
-  socket.on(JOIN_ROOM, function (msg: JoinRoomMessage) {
-    console.log(`Client ${socket.id} try to join with ${msg.roomId}.`);
-    if (msg.roomId) {
-      const joinAction = db.joinRoom(socket.id, msg.roomId);
-      if (joinAction) {
-        socket.join(msg.roomId.toString());
-        const userJoinedRoomMessage: UserJoinedRoomMessage = {
-          userId: socket.id,
-        };
-        io.to(msg.roomId.toString()).emit(
-          JSON.stringify(userJoinedRoomMessage),
-        );
-        console.log(`Client ${socket.id} joined ${msg.roomId}.`);
-      } else {
-        console.log(`Client ${socket.id} failed to join ${msg.roomId}.`);
-      }
-    }
-  });
   socket.on(LEAVE_ROOM, function (msg: LeaveRoomMessage) {
     console.log(`Client ${socket.id} try to leave with ${msg}.`);
     if (msg.roomId) {
@@ -78,12 +45,33 @@ io.on(CONNECT, function (socket: Socket) {
     console.log(`Room addresses ${roomId}.`);
     io.sockets.in(roomId.toString()).emit('message', msg);
   });
-  socket.on(DISCONNECT, function (socket: Socket) {
-    // TODO: socket.id defined?
+  socket.on(DISCONNECT, function () {
     console.log(`Client ${socket.id} disconnected.`);
+    db.removeUser(socket.id);
   });
 });
 
 server.listen(9001, function () {
   console.log('listening on *:9001');
 });
+
+export const handleOnConnect = (socket: Socket): User | undefined => {
+  const roomId: string = socket.handshake.query['roomId'] as string;
+  const userId = socket.id;
+  const userName = socket.handshake.query['name'];
+  console.log(typeof roomId);
+  if (roomId && userId && userName) {
+    const addedUser = db.addUser({ id: '', name: userName }, userId);
+    if (addedUser) {
+      const joinAction = db.joinRoom(userId, parseInt(roomId));
+      if (joinAction) {
+        socket.join(roomId);
+        console.log(`Client ${socket.id} joined roomId ${roomId}.`);
+        return addedUser;
+      }
+      // TODO: remove user from userList after join room failed
+      return undefined;
+    }
+  }
+  return undefined;
+};
