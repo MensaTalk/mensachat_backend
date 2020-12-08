@@ -57,6 +57,10 @@ export class InMemoryDB {
     return newUser;
   }
 
+  public removeUser(userId: string): boolean {
+    return this.#userList.delete(userId);
+  }
+
   public joinRoom(userId: string, roomId: number): boolean {
     const room = this.#roomList.get(roomId);
     const user = this.#userList.get(userId);
