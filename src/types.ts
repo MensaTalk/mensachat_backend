@@ -7,8 +7,12 @@ export interface LeaveRoomMessage {
   roomId: number;
 }
 
-export interface ActualMessage {
+export interface ClientMessage {
   payload: string;
+}
+
+export interface ServerMessage extends ClientMessage {
+  username: string;
 }
 
 // Server

@@ -4,7 +4,12 @@ import http from 'http';
 import cors from 'cors';
 import { InMemoryDB, Room, User } from './db';
 import { CONNECT, DISCONNECT, LEAVE_ROOM, MESSAGE } from './constants';
-import { ActualMessage, LeaveRoomMessage, UserLeftRoomMessage } from './types';
+import {
+  ClientMessage,
+  LeaveRoomMessage,
+  ServerMessage,
+  UserLeftRoomMessage,
+} from './types';
 
 const app = express();
 app.use(cors());
@@ -39,11 +44,15 @@ io.on(CONNECT, function (socket: Socket) {
       }
     }
   });
-  socket.on(MESSAGE, function (msg: ActualMessage) {
-    console.log(`Client ${socket.id} send ${msg.payload}.`);
+  socket.on(MESSAGE, function (clientMessage: ClientMessage) {
+    console.log(`Client ${socket.id} send ${clientMessage.payload}.`);
     const roomId = db.getRoomIdByUserId(socket.id);
     console.log(`Room addresses ${roomId}.`);
-    io.sockets.in(roomId.toString()).emit('message', msg);
+    const serverMessage: ServerMessage = {
+      ...clientMessage,
+      username: socket.id,
+    };
+    io.sockets.in(roomId.toString()).emit('message', serverMessage);
   });
   socket.on(DISCONNECT, function () {
     console.log(`Client ${socket.id} disconnected.`);
