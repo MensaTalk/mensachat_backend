@@ -3,13 +3,8 @@ import { Server as ioServer, Socket } from 'socket.io';
 import http from 'http';
 import cors from 'cors';
 import { InMemoryDB, Room, User } from './db';
-import { CONNECT, DISCONNECT, LEAVE_ROOM, MESSAGE } from './constants';
-import {
-  ClientMessage,
-  LeaveRoomMessage,
-  ServerMessage,
-  UserLeftRoomMessage,
-} from './types';
+import { CONNECT, DISCONNECT, MESSAGE } from './constants';
+import { ClientMessage, ServerMessage } from './types';
 
 const app = express();
 app.use(cors());
@@ -63,6 +58,7 @@ export const handleOnConnect = (socket: Socket): User | undefined => {
         return addedUser;
       }
       // TODO: remove user from userList after join room failed
+      db.removeUser(userId);
       return undefined;
     }
   }
