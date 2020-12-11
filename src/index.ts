@@ -28,22 +28,6 @@ io.on(CONNECT, function (socket: Socket) {
   if (connectedUser === undefined) {
     socket.disconnect();
   }
-  socket.on(LEAVE_ROOM, function (msg: LeaveRoomMessage) {
-    console.log(`Client ${socket.id} try to leave with ${msg}.`);
-    if (msg.roomId) {
-      const leaveAction = db.leaveRoom(socket.id);
-      if (leaveAction) {
-        // TODO: remove socket from room
-        const userLeftRoomMessage: UserLeftRoomMessage = {
-          userId: socket.id,
-        };
-        io.to(msg.roomId.toString()).emit(JSON.stringify(userLeftRoomMessage));
-        console.log(`Client ${socket.id} left ${msg.roomId}.`);
-      } else {
-        console.log(`Client ${socket.id} failed to leave ${msg.roomId}.`);
-      }
-    }
-  });
   socket.on(MESSAGE, function (clientMessage: ClientMessage) {
     console.log(`Client ${socket.id} send ${clientMessage.payload}.`);
     const roomId = db.getRoomIdByUserId(socket.id);
