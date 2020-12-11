@@ -9,7 +9,7 @@ import { ClientMessage, ServerMessage } from './types';
 const app = express();
 app.use(cors());
 app.options('*', cors());
-app.set('port', process.env.PORT || 9001);
+app.set('port', process.env.PORT || 80);
 
 const server = http.createServer(app);
 const io = new ioServer(server);
