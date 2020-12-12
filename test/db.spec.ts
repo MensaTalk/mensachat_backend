@@ -1,4 +1,4 @@
-import { InMemoryDB } from './db';
+import { InMemoryDB } from '../src/db';
 
 describe('in memory db', () => {
   let db = new InMemoryDB();
