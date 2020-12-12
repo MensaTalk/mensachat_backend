@@ -2,9 +2,10 @@ import express from 'express';
 import { Server as ioServer, Socket } from 'socket.io';
 import http from 'http';
 import cors from 'cors';
-import { InMemoryDB, Room, User } from './db';
+import { InMemoryDB } from './db';
 import { CONNECT, DISCONNECT, MESSAGE } from './constants';
-import { ClientMessage, ServerMessage } from './types';
+import { ClientMessage, ServerMessage, User } from './types';
+import { loadRooms } from './adapter';
 
 const PORT = process.env.PORT || 80;
 
@@ -17,8 +18,8 @@ const server = http.createServer(app);
 const io = new ioServer(server);
 const db = new InMemoryDB();
 
-const dummyRoom: Room = { id: 1, name: '1' };
-db.addRoom(dummyRoom);
+const rooms_seed = loadRooms();
+rooms_seed.then((rooms) => rooms.forEach((room) => db.addRoom(room)));
 
 io.on(CONNECT, function (socket: Socket) {
   const connectedUser = handleOnConnect(socket);

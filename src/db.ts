@@ -1,14 +1,5 @@
-export interface Room {
-  id: number;
-  name: string;
-}
-
-export interface User {
-  id: string;
-  name: string;
-  roomId: number;
-}
-
+import { Room } from './types';
+import { User } from './types';
 export class InMemoryDB {
   #roomList: Map<number, Room>;
   #userList: Map<string, User>;
