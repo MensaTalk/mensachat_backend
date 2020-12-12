@@ -6,7 +6,7 @@ import { InMemoryDB, Room, User } from './db';
 import { CONNECT, DISCONNECT, MESSAGE } from './constants';
 import { ClientMessage, ServerMessage } from './types';
 
-const PORT = process.env.PORT || 80
+const PORT = process.env.PORT || 80;
 
 const app = express();
 app.use(cors());
@@ -27,11 +27,14 @@ io.on(CONNECT, function (socket: Socket) {
   }
   socket.on(MESSAGE, function (clientMessage: ClientMessage) {
     console.log(`Client ${socket.id} send ${clientMessage.payload}.`);
+
     const roomId = db.getRoomIdByUserId(socket.id);
+    const user = db.getUserByUserId(socket.id);
     console.log(`Room addresses ${roomId}.`);
+    console.log(user);
     const serverMessage: ServerMessage = {
       ...clientMessage,
-      username: socket.id,
+      username: user.name,
     };
     io.sockets.in(roomId.toString()).emit('message', serverMessage);
   });
@@ -59,7 +62,6 @@ export const handleOnConnect = (socket: Socket): User | undefined => {
         console.log(`Client ${socket.id} joined roomId ${roomId}.`);
         return addedUser;
       }
-      // TODO: remove user from userList after join room failed
       db.removeUser(userId);
       return undefined;
     }

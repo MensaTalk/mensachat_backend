@@ -30,6 +30,10 @@ export class InMemoryDB {
     return this.#userList;
   }
 
+  public getUserByUserId(userId: string): User {
+    return this.#userList.get(userId);
+  }
+
   public addRoom(room: Room): Room {
     this.idRoomCounter += 1;
     const newRoom = { ...room, id: this.idRoomCounter };
