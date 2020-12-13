@@ -7,7 +7,7 @@ import { CONNECT, DISCONNECT, MESSAGE } from './constants';
 import { ClientMessage, MessageInterface, ServerMessage, User } from './types';
 import { loadRooms, saveRoomMessages } from './adapter';
 
-const PORT = process.env.PORT || 9000;
+const PORT = process.env.PORT || 80;
 
 const app = express();
 app.use(cors());

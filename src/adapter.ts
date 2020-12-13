@@ -2,7 +2,7 @@ import axios from 'axios';
 import { MessageInterface, Room } from './types';
 
 const API_ROOMS_URL = 'http://mensatalk.herokuapp.com/chatrooms';
-const API_MESSAGE_URL = `http://mensatalk.herokuapp.com/chatrooms`;
+const API_MESSAGE_URL = `http://mensatalk.herokuapp.com/chatmessages`;
 const _get_room_messages_url = (roomId): string => {
   return `http://mensatalk.herokuapp.com/chatrooms/${roomId}/chatmessages`;
 };
