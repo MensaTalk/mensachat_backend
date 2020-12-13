@@ -4,10 +4,10 @@ import http from 'http';
 import cors from 'cors';
 import { InMemoryDB } from './db';
 import { CONNECT, DISCONNECT, MESSAGE } from './constants';
-import { ClientMessage, ServerMessage, User } from './types';
-import { loadRooms } from './adapter';
+import { ClientMessage, MessageInterface, ServerMessage, User } from './types';
+import { loadRooms, saveRoomMessages } from './adapter';
 
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 9000;
 
 const app = express();
 app.use(cors());
@@ -17,6 +17,7 @@ app.options('*', cors());
 const server = http.createServer(app);
 const io = new ioServer(server);
 const db = new InMemoryDB();
+const token = '';
 
 const rooms_seed = loadRooms();
 rooms_seed.then((rooms) => rooms.forEach((room) => db.addRoom(room)));
@@ -26,6 +27,7 @@ io.on(CONNECT, function (socket: Socket) {
   if (connectedUser === undefined) {
     socket.disconnect();
   }
+
   socket.on(MESSAGE, function (clientMessage: ClientMessage) {
     console.log(`Client ${socket.id} send ${clientMessage.payload}.`);
 
@@ -38,7 +40,20 @@ io.on(CONNECT, function (socket: Socket) {
       username: user.name,
     };
     io.sockets.in(roomId.toString()).emit('message', serverMessage);
+
+    // TODO: STORE MESSAGES AND SEND AS BATCH
+    const messages: MessageInterface[] = [
+      {
+        chatRoomId: roomId,
+        textMessage: clientMessage.payload,
+        authorName: user.name,
+        created_at: Date.now().toString(),
+      },
+    ];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const response = saveRoomMessages(token, messages);
   });
+
   socket.on(DISCONNECT, function () {
     console.log(`Client ${socket.id} disconnected.`);
     db.removeUser(socket.id);

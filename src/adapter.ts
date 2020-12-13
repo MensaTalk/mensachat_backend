@@ -1,29 +1,39 @@
 import axios from 'axios';
-import { Room, MessageInterface } from './types';
+import { MessageInterface, Room } from './types';
 
 const API_ROOMS_URL = 'http://mensatalk.herokuapp.com/chatrooms';
+const API_MESSAGE_URL = `http://mensatalk.herokuapp.com/chatrooms`;
 const _get_room_messages_url = (roomId): string => {
   return `http://mensatalk.herokuapp.com/chatrooms/${roomId}/chatmessages`;
 };
 
 export const loadRooms = async (): Promise<Room[]> => {
   const response = axios.get(API_ROOMS_URL);
-  const rooms: Room[] = (await response).data;
-  return rooms;
+  return (await response).data;
 };
 
-export const saveRoomMessage = (
+export const getRoomMessages = async (
   roomId: number,
   token: string,
-  message: MessageInterface,
-): void => {
-  // TODO:  test
-  const room_messages_url = _get_room_messages_url(roomId);
-  axios.post(room_messages_url, JSON.stringify(message), {
+): Promise<MessageInterface[]> => {
+  const response = axios.get(_get_room_messages_url(roomId), {
     headers: {
       Authorization: 'Bearer ' + token,
       'Content-Type': 'application/json',
     },
   });
-  return;
+  return (await response).data;
+};
+
+export const saveRoomMessages = async (
+  token: string,
+  messages: MessageInterface[],
+): Promise<MessageInterface[]> => {
+  const response = axios.post(API_MESSAGE_URL, JSON.stringify(messages), {
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json',
+    },
+  });
+  return (await response).data;
 };

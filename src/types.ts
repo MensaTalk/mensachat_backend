@@ -28,8 +28,8 @@ export interface SignUserInterface {
 
 // Backend
 export interface MessageInterface {
-  id: number;
+  chatRoomId: number;
   textMessage: string;
-  created_at: string;
-  username: string;
+  created_at: string; // 2020-12-13T10:43:13.860+00:00
+  authorName: string;
 }
