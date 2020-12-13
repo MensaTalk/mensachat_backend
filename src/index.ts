@@ -5,7 +5,7 @@ import cors from 'cors';
 import { InMemoryDB } from './db';
 import { CONNECT, DISCONNECT, MESSAGE } from './constants';
 import { ClientMessage, MessageInterface, ServerMessage, User } from './types';
-import { loadRooms, saveRoomMessages } from './adapter';
+import { createToken, loadRooms, saveRoomMessages } from './adapter';
 
 const PORT = process.env.PORT || 80;
 
@@ -17,7 +17,9 @@ app.options('*', cors());
 const server = http.createServer(app);
 const io = new ioServer(server);
 const db = new InMemoryDB();
-const token = '';
+
+const token_seed = createToken();
+console.log(token_seed);
 
 const rooms_seed = loadRooms();
 rooms_seed.then((rooms) => rooms.forEach((room) => db.addRoom(room)));
@@ -27,14 +29,12 @@ io.on(CONNECT, function (socket: Socket) {
   if (connectedUser === undefined) {
     socket.disconnect();
   }
-
   socket.on(MESSAGE, function (clientMessage: ClientMessage) {
     console.log(`Client ${socket.id} send ${clientMessage.payload}.`);
 
     const roomId = db.getRoomIdByUserId(socket.id);
     const user = db.getUserByUserId(socket.id);
     console.log(`Room addresses ${roomId}.`);
-    console.log(user);
     const serverMessage: ServerMessage = {
       ...clientMessage,
       username: user.name,
@@ -51,7 +51,7 @@ io.on(CONNECT, function (socket: Socket) {
       },
     ];
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const response = saveRoomMessages(token, messages);
+    token_seed.then((token) => saveRoomMessages(token.token, messages));
   });
 
   socket.on(DISCONNECT, function () {

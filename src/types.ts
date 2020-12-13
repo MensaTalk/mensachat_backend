@@ -21,9 +21,8 @@ export interface User {
 }
 
 // JWT
-export interface SignUserInterface {
-  username: string;
-  password: string;
+export interface AuthenticationInterface {
+  token: string;
 }
 
 // Backend

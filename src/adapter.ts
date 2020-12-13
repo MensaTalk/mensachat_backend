@@ -1,10 +1,25 @@
 import axios from 'axios';
-import { MessageInterface, Room } from './types';
+import { AuthenticationInterface, MessageInterface, Room } from './types';
 
 const API_ROOMS_URL = 'http://mensatalk.herokuapp.com/chatrooms';
 const API_MESSAGE_URL = `http://mensatalk.herokuapp.com/chatmessages`;
 const _get_room_messages_url = (roomId): string => {
   return `http://mensatalk.herokuapp.com/chatrooms/${roomId}/chatmessages`;
+};
+
+export const createToken = async (): Promise<AuthenticationInterface> => {
+  const apiSignUpUrl = 'https://mensatalk.herokuapp.com/authenticate';
+  const response = axios.post(
+    apiSignUpUrl,
+    JSON.stringify({ username: 'abteilung6', password: 'abteilung6' }),
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+  console.log(response);
+  return (await response).data;
 };
 
 export const loadRooms = async (): Promise<Room[]> => {
@@ -35,5 +50,6 @@ export const saveRoomMessages = async (
       'Content-Type': 'application/json',
     },
   });
+  console.log(`Sent ${messages.length} room message to heroku`);
   return (await response).data;
 };
