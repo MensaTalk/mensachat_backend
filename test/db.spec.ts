@@ -17,36 +17,33 @@ describe('in memory db', () => {
     expect(db.rooms.size).toBe(1);
     expect(room.id).toBe(1);
   });
-  it('add user', () => {
-    const user = db.addUser({ id: '', name: 'name' });
-    expect(db.users.size).toBe(1);
-    expect(user.id).toBe('1');
-  });
   it('add user with own id', () => {
-    const user = db.addUser({ id: '', name: 'name' }, 'myId');
+    const user = db.addUser({ id: 0, name: 'name' }, 'myId');
     expect(db.users.size).toBe(1);
-    expect(user.id).toBe('myId');
+    expect(user.id).toBe(0);
   });
   it('add user with own id but duplicated', () => {
-    const user = db.addUser({ id: '', name: 'name' }, 'myId');
+    const user = db.addUser({ id: 0, name: 'name' }, 'myId');
     expect(user).toBeDefined();
     expect(db.users.size).toBe(1);
-    const anotherUser = db.addUser({ id: '', name: 'name' }, 'myId');
+    const anotherUser = db.addUser({ id: 0, name: 'name' }, 'myId');
     expect(anotherUser).toBeUndefined();
   });
   it('user can join room', () => {
-    const user = db.addUser({ id: '', name: 'name' });
+    const socketId = 'myId';
+    const user = db.addUser({ id: 0, name: 'name' }, socketId);
     const room = db.addRoom({ id: NaN, name: 'name' });
 
-    expect(db.joinRoom(user.id, room.id)).toBeTruthy();
-    expect(db.users.get(user.id).roomId).toBe(room.id);
+    expect(db.joinRoom(socketId, room.id)).toBeTruthy();
+    expect(db.users.get(socketId).roomId).toBe(room.id);
   });
   it('user can leave room', () => {
-    const user = db.addUser({ id: '', name: 'name' });
+    const socketId = 'myId';
+    const user = db.addUser({ id: 0, name: 'name' }, socketId);
     const room = db.addRoom({ id: NaN, name: 'name' });
 
-    expect(db.joinRoom(user.id, room.id));
-    expect(db.leaveRoom(user.id)).toBeTruthy();
-    expect(db.users.get(user.id).roomId).toBeNaN();
+    expect(db.joinRoom(socketId, room.id));
+    expect(db.leaveRoom(socketId)).toBeTruthy();
+    expect(db.users.get(socketId).roomId).toBeNaN();
   });
 });
