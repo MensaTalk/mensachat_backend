@@ -21,8 +21,9 @@ export class InMemoryDB {
     return this.#userList;
   }
 
-  public getUserByUserId(userId: string): User {
-    return this.#userList.get(userId);
+  public getUserByUserId(socketId: string): User {
+    console.log(socketId);
+    return this.#userList.get(socketId);
   }
 
   public addRoom(room: Room): Room {
@@ -34,52 +35,52 @@ export class InMemoryDB {
 
   public addUser(
     user: Omit<User, 'roomId'>,
-    userId?: string,
+    socketId: string,
   ): User | undefined {
-    this.idUserCounter += 1;
-    let id = '';
-    const hasUser = this.#userList.has(userId);
-    if (userId && hasUser === false) {
-      id = userId;
-    } else if (hasUser) {
+    const hasUser = this.#userList.has(socketId);
+    if (hasUser) {
       return undefined;
-    } else {
-      id = this.idUserCounter.toString();
     }
-    const common: Pick<User, 'id' | 'roomId'> = { id: id, roomId: NaN };
+    const common: Pick<User, 'roomId'> = { roomId: NaN };
     const newUser = { ...user, ...common };
-    this.#userList.set(id, newUser);
+    this.#userList.set(socketId, newUser);
     return newUser;
   }
 
-  public removeUser(userId: string): boolean {
-    return this.#userList.delete(userId);
+  public removeUser(socketId: string): boolean {
+    return this.#userList.delete(socketId);
   }
 
-  public joinRoom(userId: string, roomId: number): boolean {
+  public joinRoom(socketId: string, roomId: number): boolean {
     const room = this.#roomList.get(roomId);
-    const user = this.#userList.get(userId);
+    const user = this.#userList.get(socketId);
     if (room && user) {
-      this.#userList.set(userId, { ...user, roomId: roomId });
+      this.#userList.set(socketId, { ...user, roomId: roomId });
       return true;
     }
     return false;
   }
 
-  public leaveRoom(userId: string): boolean {
-    const user = this.#userList.get(userId);
+  public leaveRoom(socketId: string): boolean {
+    const user = this.#userList.get(socketId);
     if (user) {
-      this.#userList.set(userId, { ...user, roomId: NaN });
+      this.#userList.set(socketId, { ...user, roomId: NaN });
       return true;
     }
     return false;
   }
 
-  public getRoomIdByUserId(userId: string): number {
-    const user = this.#userList.get(userId);
+  public getRoomIdByUserId(socketId: string): number {
+    const user = this.#userList.get(socketId);
     if (user) {
       return user.roomId;
     }
     return NaN;
+  }
+
+  public getUserIdsByRoomId(roomId: number): number[] {
+    return Array.from(this.#userList.values())
+      .filter((user) => user.roomId === roomId)
+      .map((user) => user.id);
   }
 }

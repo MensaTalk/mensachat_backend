@@ -8,6 +8,10 @@ export interface ServerMessage extends ClientMessage {
   username: string;
 }
 
+export interface RoomEventMessage {
+  userIds: number[];
+}
+
 // Memory Database
 export interface Room {
   id: number;
@@ -15,7 +19,7 @@ export interface Room {
 }
 
 export interface User {
-  id: string;
+  id: number;
   name: string;
   roomId: number;
 }
