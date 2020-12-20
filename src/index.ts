@@ -44,34 +44,35 @@ io.on(CONNECT, function (socket: Socket) {
       }
     });
   socket.on(MESSAGE, function (clientMessage: ClientMessage) {
+    if (clientMessage.payload.length === 0) {
+      return;
+    }
     const user = db.getUserByUserId(socket.id);
     console.log(user);
     if (user === undefined) {
       console.log(`${user} is not verified`);
-    } else {
-      console.log(`Client ${socket.id} send ${clientMessage.payload}.`);
-      const roomId = db.getRoomIdByUserId(socket.id);
-
-      console.log(`Room addresses ${roomId}.`);
-      const serverMessage: ServerMessage = {
-        ...clientMessage,
-        username: user.name,
-      };
-      io.sockets.in(roomId.toString()).emit('message', serverMessage);
-
-      // TODO: STORE MESSAGES AND SEND AS BATCH
-      const messages: MessageInterface[] = [
-        {
-          chatRoomId: roomId,
-          textMessage: clientMessage.payload,
-          authorName: user.name,
-          created_at: Date.now().toString(),
-        },
-      ];
-      server_token_seed.then((token) =>
-        saveRoomMessages(token.token, messages),
-      );
+      return;
     }
+    console.log(`Client ${socket.id} send ${clientMessage.payload}.`);
+    const roomId = db.getRoomIdByUserId(socket.id);
+
+    console.log(`Room addresses ${roomId}.`);
+    const serverMessage: ServerMessage = {
+      ...clientMessage,
+      username: user.name,
+    };
+    io.sockets.in(roomId.toString()).emit('message', serverMessage);
+
+    // TODO: STORE MESSAGES AND SEND AS BATCH
+    const messages: MessageInterface[] = [
+      {
+        chatRoomId: roomId,
+        textMessage: clientMessage.payload,
+        authorName: user.name,
+        created_at: Date.now().toString(),
+      },
+    ];
+    server_token_seed.then((token) => saveRoomMessages(token.token, messages));
   });
 
   socket.on(DISCONNECT, function () {
