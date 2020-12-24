@@ -3,6 +3,8 @@ export interface ClientMessage {
   payload: string;
 }
 
+export type ClientTypingMessage = ClientMessage;
+
 // Server
 export interface ServerMessage extends ClientMessage {
   username: string;
@@ -10,6 +12,12 @@ export interface ServerMessage extends ClientMessage {
 
 export interface RoomEventMessage {
   userIds: number[];
+}
+
+export type Typing = Omit<Message, 'text'>;
+
+export interface TypingEventMessage {
+  typings: Typing[];
 }
 
 // Memory Database
@@ -22,6 +30,14 @@ export interface User {
   id: number;
   name: string;
   roomId: number;
+}
+
+export interface Message {
+  id: number;
+  text: string;
+  timestamp: number;
+  roomId: number;
+  userId: number;
 }
 
 // JWT

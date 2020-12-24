@@ -3,12 +3,21 @@ import { Server as ioServer, Socket } from 'socket.io';
 import http from 'http';
 import cors from 'cors';
 import { InMemoryDB } from './db';
-import { CONNECT, DISCONNECT, MESSAGE, ROOM_EVENT } from './constants';
+import {
+  CONNECT,
+  DISCONNECT,
+  MESSAGE,
+  ROOM_EVENT,
+  TYPING_EVENT,
+} from './constants';
 import {
   ClientMessage,
+  ClientTypingMessage,
+  Message,
   MessageInterface,
   RoomEventMessage,
   ServerMessage,
+  TypingEventMessage,
   User,
 } from './types';
 import {
@@ -17,6 +26,7 @@ import {
   saveRoomMessages,
   verifyUserNameWithToken,
 } from './adapter';
+import { getCurrentTime } from './utils';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -82,6 +92,27 @@ io.on(CONNECT, function (socket: Socket) {
       },
     ];
     server_token_seed.then((token) => saveRoomMessages(token.token, messages));
+  });
+
+  socket.on(TYPING_EVENT, function (clientTypingMessage: ClientTypingMessage) {
+    const user = db.getUserByUserId(socket.id);
+    const roomId = db.getRoomIdByUserId(socket.id);
+    const timestamp = getCurrentTime();
+    const message: Message = {
+      id: NaN,
+      text: clientTypingMessage.payload,
+      timestamp: timestamp,
+      roomId: roomId,
+      userId: user.id,
+    };
+    db.addMessage(message);
+    db.removeOutdatedMessages(timestamp, 5);
+    const typings = db.getLatestTypings(roomId, timestamp, 5);
+    if (typings.length > 0) {
+      const typingEventMessage: TypingEventMessage = { typings: typings };
+      console.log(`Typing Event in room ${roomId}.`);
+      io.sockets.in(roomId.toString()).emit(TYPING_EVENT, typingEventMessage);
+    }
   });
 
   socket.on(DISCONNECT, function () {

@@ -1,14 +1,15 @@
-import { Room } from './types';
-import { User } from './types';
+import { Message, Room, Typing, User } from './types';
 export class InMemoryDB {
   #roomList: Map<number, Room>;
   #userList: Map<string, User>;
+  #messageList: Message[];
   idRoomCounter: number;
   idUserCounter: number;
 
   constructor() {
     this.#roomList = new Map();
     this.#userList = new Map();
+    this.#messageList = [];
     this.idRoomCounter = 0;
     this.idUserCounter = 0;
   }
@@ -19,6 +20,10 @@ export class InMemoryDB {
 
   get users(): Map<string, User> {
     return this.#userList;
+  }
+
+  get messages(): Message[] {
+    return this.#messageList;
   }
 
   public getUserByUserId(socketId: string): User {
@@ -82,5 +87,39 @@ export class InMemoryDB {
     return Array.from(this.#userList.values())
       .filter((user) => user.roomId === roomId)
       .map((user) => user.id);
+  }
+
+  public addMessage(message: Message): void {
+    this.#messageList.push(message);
+  }
+
+  // TODO: Async behavior, atomic operations needed
+  public removeOutdatedMessages(timestamp: number, threshhold = 5): void {
+    const updatedMessages: Message[] = this.#messageList.filter(
+      (message) => message.timestamp >= timestamp - threshhold,
+    );
+    this.#messageList = [...updatedMessages];
+    return;
+  }
+
+  public getLatestTypings(
+    roomId: number,
+    timestamp: number,
+    threshhold = 5,
+  ): Typing[] {
+    return this.#messageList
+      .filter(
+        (message) =>
+          message.roomId === roomId &&
+          message.timestamp >= timestamp - threshhold,
+      )
+      .map((message) => {
+        return {
+          id: message.id,
+          roomId: message.roomId,
+          timestamp: message.timestamp,
+          userId: message.userId,
+        };
+      });
   }
 }
