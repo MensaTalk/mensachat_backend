@@ -18,7 +18,16 @@ import {
   verifyUserNameWithToken,
 } from './adapter';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
+const { REACT_APP_JWT_USERNAME, REACT_APP_JWT_PASSWORD } = process.env;
+
+const jwtUsername = REACT_APP_JWT_USERNAME || '';
+const jwtPassword = REACT_APP_JWT_PASSWORD || '';
 const PORT = process.env.PORT || 80;
+
+console.log(jwtUsername, jwtPassword);
 
 const app = express();
 app.use(cors());
@@ -32,7 +41,7 @@ const db = new InMemoryDB();
 const rooms_seed = loadRooms();
 rooms_seed.then((rooms) => rooms.forEach((room) => db.addRoom(room)));
 
-const server_token_seed = createToken();
+const server_token_seed = createToken(jwtUsername, jwtPassword);
 
 io.on(CONNECT, function (socket: Socket) {
   server_token_seed
