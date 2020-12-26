@@ -66,16 +66,16 @@ describe('in memory db', () => {
       db.addMessage(message);
       expect(db.messages.length).toBe(1);
     });
-    it('user can place multiple messages', () => {
+    it('newer message replaces older message from user', () => {
       const oldMessage: Message = {
-        id: NaN,
+        id: 1,
         text: 'text',
         timestamp: 1,
         roomId: 1,
         userId: 1,
       };
       const latestMessage: Message = {
-        id: NaN,
+        id: 2,
         text: 'text later',
         timestamp: 2,
         roomId: 1,
@@ -84,7 +84,8 @@ describe('in memory db', () => {
       db.addMessage(oldMessage);
       expect(db.messages.length).toBe(1);
       db.addMessage(latestMessage);
-      expect(db.messages.length).toBe(2);
+      expect(db.messages.length).toBe(1);
+      expect(db.messages[0].id).toBe(2);
     });
     it('removeOutdatedMessages removes outdated messages', () => {
       const timestamp = Math.floor(new Date().valueOf() / 1000);
@@ -118,7 +119,7 @@ describe('in memory db', () => {
       };
       db.addMessage(outdatedMessage);
       db.addMessage(latestMessage);
-      expect(db.messages.length).toBe(2);
+      expect(db.messages.length).toBe(1);
       const typings = db.getLatestTypings(latestMessage.roomId, timestamp, 5);
       expect(typings[0].id).toBe(2);
     });

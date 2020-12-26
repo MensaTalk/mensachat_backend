@@ -90,7 +90,11 @@ export class InMemoryDB {
   }
 
   public addMessage(message: Message): void {
-    this.#messageList.push(message);
+    const updatedMessages: Message[] = this.#messageList.filter(
+      (value) => value.userId !== message.userId,
+    );
+    this.#messageList = [...updatedMessages, message];
+    // this.#messageList.push(message);
   }
 
   // TODO: Async behavior, atomic operations needed
